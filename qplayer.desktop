@@ -2,5 +2,5 @@
 Name=video
 Name[zh_CN]=视频
 Exec=/usr/bin/qvideoplayer
-Icon=/usr/share/icon/icon_video.png
+Icon=/usr/share/icon/icon_player.png
 Type=Application
