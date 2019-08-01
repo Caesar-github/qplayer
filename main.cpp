@@ -54,6 +54,7 @@
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QDir>
+#include <QtWidgets>
 
 int main(int argc, char **argv)
 {
@@ -87,6 +88,9 @@ int main(int argc, char **argv)
             player.play();
         }
     }
+
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(&player);
+    player.resize(availableGeometry.width(), availableGeometry.height());
 
     player.showFullScreen();
     player.show();
