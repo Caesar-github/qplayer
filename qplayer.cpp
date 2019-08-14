@@ -98,7 +98,6 @@ QPlayer::QPlayer(QWidget *parent)
     layout->addLayout(controlLayout);
 
     list = new QMediaPlaylist;
-    list->setPlaybackMode(QMediaPlaylist::Loop);
     player.setVideoOutput(videoWidget);
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
@@ -162,6 +161,12 @@ void QPlayer::setPlaylist(QStringList l)
         }
         list->setCurrentIndex(1);
         player.setPlaylist(list);
+    }
+
+    if(list->mediaCount() > 1){
+        list->setPlaybackMode(QMediaPlaylist::Loop);
+    } else {
+        list->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
     }
 }
 
