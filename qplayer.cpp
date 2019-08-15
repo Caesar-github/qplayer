@@ -52,19 +52,8 @@
 #include <QtWidgets>
 #include <QVideoSurfaceFormat>
 
-void VideoWin::mouseReleaseEvent(QMouseEvent *event)
-{
-    if(event->button() == Qt::LeftButton){
-        if(vp->isUIon())
-            vp->hideUI();
-        else
-            vp->showUI();
-    }
-}
-
-QPlayer::QPlayer(QWidget *parent)
-    : QWidget(parent)
-    , player(nullptr, QMediaPlayer::VideoSurface)
+QPlayer::QPlayer()
+    : player(nullptr, QMediaPlayer::VideoSurface)
     , list(nullptr)
     , playButton(nullptr)
     , positionSlider(nullptr)
@@ -85,55 +74,68 @@ QPlayer::QPlayer(QWidget *parent)
     connect(positionSlider, &QAbstractSlider::sliderMoved, this, &QPlayer::setPosition);
 
     controlLayout = new QHBoxLayout;
-    controlLayout->setMargin(0);
     controlLayout->addWidget(exitButton);
     controlLayout->addWidget(playButton);
     controlLayout->addWidget(positionSlider);
+    controlLayout->setMargin(0);
+    control = new QWidget();
+    control->setLayout(controlLayout);
+    control->setWindowFlag(Qt::FramelessWindowHint);
 
-    videoViewer = new VideoWin;
-    videoViewer->setVideoPlayer(this);
+    videoViewer = new QVideoWidget;
     imageViewer = new QLabel();
-    QBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(videoViewer);
-    layout->addWidget(imageViewer);
-    layout->addLayout(controlLayout);
+    QBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
+    mainLayout->addWidget(videoViewer);
+    mainLayout->addWidget(imageViewer);
+    mainLayout->addWidget(control);
+
+    QWidget *widget = new QWidget();
+    widget->setLayout(mainLayout);
 
     list = new QMediaPlaylist;
     player.setVideoOutput(videoViewer);
+
+    setCentralWidget(widget);
 //    setWindowState(Qt::WindowMaximized);
+    setWindowFlags(Qt::FramelessWindowHint);
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
     connect(&player, &QMediaPlayer::mediaStatusChanged, this, &QPlayer::mediaStatusChanged);
     connect(&timer1, &QTimer::timeout, this, &QPlayer::toImageViewer);
     connect(&timer2, &QTimer::timeout, this, &QPlayer::toVideoViewer);
-    showUI();
+
 }
 
 QPlayer::~QPlayer()
 {
 }
 
-void QPlayer::hideUI()
-{
-    playButton->hide();
-    exitButton->hide();
-    positionSlider->hide();
-    uiOn = false;
-}
-
-void QPlayer::showUI()
-{
-    playButton->show();
-    exitButton->show();
-    positionSlider->show();
-    uiOn = true;
-}
-
 bool QPlayer::isPlayerAvailable() const
 {
     return player.isAvailable();
+}
+
+void QPlayer::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if(e->button() == Qt::LeftButton){
+        if(isFullScreen()){
+            showNormal();
+            control->show();
+        }else {
+            showFullScreen();
+            control->hide();
+        }
+    }
+}
+
+void QPlayer::mouseReleaseEvent(QMouseEvent *e)
+{
+    if(e->button() == Qt::LeftButton){
+
+    }
 }
 
 void QPlayer::exit()
@@ -255,10 +257,12 @@ void QPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
         QMimeType mt = db.mimeTypeForUrl(url);
         QString s = mt.name().mid(0, 6);
         if(! s.compare("image/")){
+            imageViewer->show();
             videoViewer->hide();
             timer1.start(1);
         }else {
             imageViewer->hide();
+            videoViewer->show();
         }
     }
 }

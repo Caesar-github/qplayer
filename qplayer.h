@@ -51,44 +51,33 @@
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
+#include <QAbstractButton>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QMainWindow>
 #include <QMediaPlayer>
 #include <QMovie>
+#include <QSlider>
 #include <QTimer>
 #include <QWidget>
 #include <QVideoWidget>
 #include <QMediaPlaylist>
 
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QSlider;
-QT_END_NAMESPACE
-class QPlayer;
 
-class VideoWin : public QVideoWidget
-{
-public:
-    void mouseReleaseEvent(QMouseEvent *event);
-    void setVideoPlayer(QPlayer *v){vp = v;}
-    QPlayer *vp;
-};
-
-class QPlayer : public QWidget
+class QPlayer : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    QPlayer(QWidget *parent = 0);
+    QPlayer();
     ~QPlayer();
 
     void setPlaylist(QStringList l);
     void load(const QUrl &url);
-    void hideUI();
-    void showUI();
-    bool isUIon(){return uiOn;}
     bool isPlayerAvailable() const;
-
+protected:
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
 public slots:
     void exit();
     void play();
@@ -106,15 +95,16 @@ private slots:
 private:
     QMediaPlayer player;
     QMediaPlaylist *list;
-    VideoWin *videoViewer;
+    QVideoWidget *videoViewer;
     QLabel *imageViewer;
     QBoxLayout *controlLayout;
+    QWidget *control;
+    QBoxLayout *mainLayout;
     QAbstractButton *playButton;
     QAbstractButton *exitButton;
     QSlider *positionSlider;
     QTimer timer1;
     QTimer timer2;
-    bool uiOn;
 };
 
 #endif
