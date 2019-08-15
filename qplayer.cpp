@@ -101,6 +101,7 @@ QPlayer::QPlayer(QWidget *parent)
 
     list = new QMediaPlaylist;
     player.setVideoOutput(videoViewer);
+//    setWindowState(Qt::WindowMaximized);
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
@@ -157,9 +158,10 @@ void QPlayer::toImageViewer()
         imageViewer->show();
         if(list->mediaCount() > 1){
             list->setCurrentIndex(list->nextIndex());
-            if(player.state() == QMediaPlayer::PlayingState)
-                player.pause();
             timer2.start(5000);
+        }
+        if(player.state() == QMediaPlayer::PlayingState){
+            player.pause();
         }
     }
 }
