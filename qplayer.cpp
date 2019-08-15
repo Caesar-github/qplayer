@@ -64,18 +64,18 @@ void VideoWin::mouseReleaseEvent(QMouseEvent *event)
 
 QPlayer::QPlayer(QWidget *parent)
     : QWidget(parent)
-    , player(0, QMediaPlayer::VideoSurface)
-    , list(0)
-    , playButton(0)
-    , positionSlider(0)
+    , player(nullptr, QMediaPlayer::VideoSurface)
+    , list(nullptr)
+    , playButton(nullptr)
+    , positionSlider(nullptr)
 {
     const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+    resize(screenGeometry.width(), screenGeometry.height());
 
     exitButton = new QPushButton(tr("Exit"));
     connect(exitButton, &QAbstractButton::clicked, this, &QPlayer::exit);
 
     playButton = new QPushButton;
-//    playButton->setEnabled(false);
     playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
     connect(playButton, &QAbstractButton::clicked, this, &QPlayer::play);
@@ -84,26 +84,29 @@ QPlayer::QPlayer(QWidget *parent)
     positionSlider->setRange(0, 0);
     connect(positionSlider, &QAbstractSlider::sliderMoved, this, &QPlayer::setPosition);
 
-    QBoxLayout *controlLayout = new QHBoxLayout;
+    controlLayout = new QHBoxLayout;
     controlLayout->setMargin(0);
     controlLayout->addWidget(exitButton);
     controlLayout->addWidget(playButton);
     controlLayout->addWidget(positionSlider);
 
+    videoViewer = new VideoWin;
+    videoViewer->setVideoPlayer(this);
+    imageViewer = new QLabel();
     QBoxLayout *layout = new QVBoxLayout(this);
-    videoWidget = new VideoWin;
-    videoWidget->setVideoPlayer(this);
     layout->setMargin(0);
-    layout->addWidget(videoWidget);
+    layout->addWidget(videoViewer);
+    layout->addWidget(imageViewer);
     layout->addLayout(controlLayout);
 
     list = new QMediaPlaylist;
-    player.setVideoOutput(videoWidget);
+    player.setVideoOutput(videoViewer);
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
     connect(&player, &QMediaPlayer::mediaStatusChanged, this, &QPlayer::mediaStatusChanged);
-    connect(&timer, &QTimer::timeout, this, &QPlayer::next);
+    connect(&timer1, &QTimer::timeout, this, &QPlayer::toImageViewer);
+    connect(&timer2, &QTimer::timeout, this, &QPlayer::toVideoViewer);
     showUI();
 }
 
@@ -137,10 +140,35 @@ void QPlayer::exit()
     qApp->exit(0);
 }
 
-void QPlayer::next()
+void QPlayer::toImageViewer()
 {
-    timer.stop();
-    list->setCurrentIndex(list->nextIndex());
+    QMimeDatabase db;
+    QUrl url = list->currentMedia().canonicalUrl();
+    QString s = db.mimeTypeForUrl(url).name().mid(0, 6);
+
+    timer1.stop();
+    if(! s.compare("image/")){
+        QImage img;
+        img.load(url.toLocalFile());
+        const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+        int w = screenGeometry.width();
+        int h = screenGeometry.height() - controlLayout->sizeHint().height();
+        imageViewer->setPixmap(QPixmap::fromImage(img.scaled(w, h, Qt::KeepAspectRatio)));
+        imageViewer->show();
+        if(list->mediaCount() > 1){
+            list->setCurrentIndex(list->nextIndex());
+            if(player.state() == QMediaPlayer::PlayingState)
+                player.pause();
+            timer2.start(5000);
+        }
+    }
+}
+
+void QPlayer::toVideoViewer()
+{
+    timer2.stop();
+    imageViewer->hide();
+    videoViewer->show();
     play();
 }
 
@@ -183,7 +211,8 @@ void QPlayer::play()
         player.pause();
         break;
     default:
-        player.play();
+        if(imageViewer->isHidden())
+            player.play();
         break;
     }
 }
@@ -217,15 +246,15 @@ void QPlayer::setPosition(int position)
 
 void QPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
-    if(status == QMediaPlayer::EndOfMedia){
+    if(status == QMediaPlayer::LoadingMedia){
         QMediaContent media = list->currentMedia();
         QUrl url = media.canonicalUrl();
         QMimeDatabase db;
         QMimeType mt = db.mimeTypeForUrl(url);
         QString s = mt.name().mid(0, 6);
         if(! s.compare("image/")){
-            player.pause();
-            timer.start(3000);
+            videoViewer->hide();
+            timer1.start(1);
         }
     }
 }
