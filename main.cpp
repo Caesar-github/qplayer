@@ -74,10 +74,6 @@ int main(int argc, char **argv)
 
     if (!parser.positionalArguments().isEmpty() && player.isPlayerAvailable()) {
         player.setPlaylist(parser.positionalArguments());
-//        const QUrl url = QUrl::fromUserInput(parser.positionalArguments().constFirst(),
-//                                QDir::currentPath(), QUrl::AssumeLocalFile);
-//            qDebug() << "opening" << url.toString();
-//        player.load(url);
         player.play();
     }else {
         QFile file("/oem/SampleVideo_1280x720_5mb.mp4");
@@ -89,10 +85,6 @@ int main(int argc, char **argv)
         }
     }
 
-    const QRect availableGeometry = QApplication::desktop()->availableGeometry(&player);
-    player.resize(availableGeometry.width(), availableGeometry.height());
-
-    player.showFullScreen();
     player.show();
 
     return app.exec();
