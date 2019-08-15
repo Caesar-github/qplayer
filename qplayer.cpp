@@ -255,6 +255,8 @@ void QPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
         if(! s.compare("image/")){
             videoViewer->hide();
             timer1.start(1);
+        }else {
+            imageViewer->hide();
         }
     }
 }
