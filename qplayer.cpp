@@ -211,7 +211,7 @@ void QPlayer::play()
         player.pause();
         break;
     default:
-        if(imageViewer->isHidden())
+        if(! videoViewer->isHidden())
             player.play();
         break;
     }
