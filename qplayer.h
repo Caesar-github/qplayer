@@ -51,6 +51,8 @@
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
+#include <QBoxLayout>
+#include <QLabel>
 #include <QMediaPlayer>
 #include <QMovie>
 #include <QTimer>
@@ -98,16 +100,20 @@ private slots:
     void durationChanged(qint64 duration);
     void setPosition(int position);
     void mediaStatusChanged(QMediaPlayer::MediaStatus status);
-    void next();
+    void toImageViewer();
+    void toVideoViewer();
 
 private:
     QMediaPlayer player;
     QMediaPlaylist *list;
-    VideoWin *videoWidget;
+    VideoWin *videoViewer;
+    QLabel *imageViewer;
+    QBoxLayout *controlLayout;
     QAbstractButton *playButton;
     QAbstractButton *exitButton;
     QSlider *positionSlider;
-    QTimer timer;
+    QTimer timer1;
+    QTimer timer2;
     bool uiOn;
 };
 
