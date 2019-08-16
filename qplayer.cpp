@@ -84,6 +84,7 @@ QPlayer::QPlayer()
 
     videoViewer = new QVideoWidget;
     imageViewer = new QLabel();
+    imageViewer->setAlignment(Qt::AlignCenter);
     QBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
@@ -103,9 +104,9 @@ QPlayer::QPlayer()
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
-    connect(&player, &QMediaPlayer::mediaStatusChanged, this, &QPlayer::mediaStatusChanged);
-    connect(&timer1, &QTimer::timeout, this, &QPlayer::toImageViewer);
-    connect(&timer2, &QTimer::timeout, this, &QPlayer::toVideoViewer);
+    connect(&player, &QMediaPlayer::currentMediaChanged, this, &QPlayer::currentMediaChanged);
+    connect(&timer1, &QTimer::timeout, this, &QPlayer::displayImage);
+    connect(&timer2, &QTimer::timeout, this, &QPlayer::next);
 
 }
 
@@ -143,12 +144,13 @@ void QPlayer::exit()
     qApp->exit(0);
 }
 
-void QPlayer::toImageViewer()
+void QPlayer::displayImage()
 {
     QMimeDatabase db;
     QUrl url = list->currentMedia().canonicalUrl();
     QString s = db.mimeTypeForUrl(url).name().mid(0, 6);
 
+    player.pause();
     timer1.stop();
     if(! s.compare("image/")){
         QImage img;
@@ -159,20 +161,15 @@ void QPlayer::toImageViewer()
         imageViewer->setPixmap(QPixmap::fromImage(img.scaled(w, h, Qt::KeepAspectRatio)));
         imageViewer->show();
         if(list->mediaCount() > 1){
-            list->setCurrentIndex(list->nextIndex());
             timer2.start(5000);
-        }
-        if(player.state() == QMediaPlayer::PlayingState){
-            player.pause();
         }
     }
 }
 
-void QPlayer::toVideoViewer()
+void QPlayer::next()
 {
     timer2.stop();
-    imageViewer->hide();
-    videoViewer->show();
+    list->setCurrentIndex(list->nextIndex());
     play();
 }
 
@@ -215,8 +212,7 @@ void QPlayer::play()
         player.pause();
         break;
     default:
-        if(! videoViewer->isHidden())
-            player.play();
+        player.play();
         break;
     }
 }
@@ -248,22 +244,27 @@ void QPlayer::setPosition(int position)
     player.setPosition(position);
 }
 
-void QPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
+void QPlayer::currentMediaChanged(const QMediaContent &media)
 {
-    if(status == QMediaPlayer::LoadingMedia){
-        QMediaContent media = list->currentMedia();
         QUrl url = media.canonicalUrl();
         QMimeDatabase db;
         QMimeType mt = db.mimeTypeForUrl(url);
         QString s = mt.name().mid(0, 6);
         if(! s.compare("image/")){
             imageViewer->show();
-            videoViewer->hide();
+            player.setVideoOutput(new QVideoWidget);
             timer1.start(1);
-        }else {
+        }else if (! s.compare("audio/")){
+            const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+            int w = screenGeometry.width();
+            int h = screenGeometry.height() - controlLayout->sizeHint().height();
+            imageViewer->setPixmap(QPixmap(":/album.jpeg").scaled(w*2/3, h*2/3, Qt::KeepAspectRatio));
+            imageViewer->show();
+            player.setVideoOutput(new QVideoWidget);
+        }else{
             imageViewer->hide();
+            player.setVideoOutput(videoViewer);
             videoViewer->show();
         }
-    }
 }
 

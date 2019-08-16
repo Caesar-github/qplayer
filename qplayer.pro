@@ -1,13 +1,12 @@
 TEMPLATE = app
 TARGET = qplayer
 
-QT += multimedia multimediawidgets
+QT        += widgets multimedia multimediawidgets
 
 HEADERS   += qplayer.h
 
 SOURCES   += main.cpp \
              qplayer.cpp
 
-INSTALLS += target
+RESOURCES += qplayer.qrc
 
-QT+=widgets
