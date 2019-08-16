@@ -157,7 +157,7 @@ void QPlayer::displayImage()
         img.load(url.toLocalFile());
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
         int w = screenGeometry.width();
-        int h = screenGeometry.height() - controlLayout->sizeHint().height();
+        int h = screenGeometry.height() * 4 /5;
         imageViewer->setPixmap(QPixmap::fromImage(img.scaled(w, h, Qt::KeepAspectRatio)));
         imageViewer->show();
         if(list->mediaCount() > 1){
