@@ -75,22 +75,23 @@ public:
     void setPlaylist(QStringList l);
     void load(const QUrl &url);
     bool isPlayerAvailable() const;
+
 protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+
 public slots:
     void exit();
     void play();
 
-
 private slots:
+    void currentMediaChanged(const QMediaContent &media);
     void mediaStateChanged(QMediaPlayer::State state);
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
     void setPosition(int position);
-    void mediaStatusChanged(QMediaPlayer::MediaStatus status);
-    void toImageViewer();
-    void toVideoViewer();
+    void displayImage();
+    void next();
 
 private:
     QMediaPlayer player;
