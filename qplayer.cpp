@@ -261,7 +261,7 @@ void QPlayer::currentMediaChanged(const QMediaContent &media)
             imageViewer->setPixmap(QPixmap(":/album.jpeg").scaled(w*2/3, h*2/3, Qt::KeepAspectRatio));
             imageViewer->show();
             player.setVideoOutput(new QVideoWidget);
-        }else{
+        }else if (! s.compare("video/")){
             imageViewer->hide();
             player.setVideoOutput(videoViewer);
             videoViewer->show();
