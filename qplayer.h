@@ -79,6 +79,7 @@ public:
 protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+    void keyReleaseEvent(QKeyEvent *e) override;
 
 public slots:
     void exit();

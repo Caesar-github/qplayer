@@ -139,6 +139,33 @@ void QPlayer::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+void QPlayer::keyReleaseEvent(QKeyEvent *e)
+{
+    int v;
+
+    switch(e->key())
+    {
+        case Qt::Key_VolumeUp:
+        case Qt::Key_Up:
+            v = player.volume();
+            if(v < 100){
+                v++;
+                player.setVolume(v);
+                qDebug() << "Key_VolumeUp: " << v;
+            }
+            break;
+        case Qt::Key_VolumeDown:
+        case Qt::Key_Down:
+            v = player.volume();
+            if(v > 0){
+                v--;
+                player.setVolume(v);
+                qDebug() << "Key_VolumeDown: " << v;
+            }
+            break;
+    }
+}
+
 void QPlayer::exit()
 {
     qApp->exit(0);
