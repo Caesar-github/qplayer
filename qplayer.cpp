@@ -72,6 +72,7 @@ QPlayer::QPlayer()
     positionSlider = new QSlider(Qt::Horizontal);
     positionSlider->setRange(0, 0);
     connect(positionSlider, &QAbstractSlider::sliderMoved, this, &QPlayer::setPosition);
+    connect(positionSlider, &QAbstractSlider::sliderReleased, this, &QPlayer::unMute);
 
     controlLayout = new QHBoxLayout;
     controlLayout->addWidget(exitButton);
@@ -268,7 +269,14 @@ void QPlayer::durationChanged(qint64 duration)
 
 void QPlayer::setPosition(int position)
 {
+    if(! player.isMuted())
+        player.setMuted(true);
     player.setPosition(position);
+}
+
+void QPlayer::unMute()
+{
+    player.setMuted(false);
 }
 
 void QPlayer::currentMediaChanged(const QMediaContent &media)
