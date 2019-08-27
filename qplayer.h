@@ -71,7 +71,7 @@ class QPlayer : public QMainWindow
 public:
     QPlayer();
     ~QPlayer();
-
+    void next();
     void setPlaylist(QStringList l);
     void load(const QUrl &url);
     bool isPlayerAvailable() const;
@@ -93,8 +93,7 @@ private slots:
     void setPosition(int position);
     void unMute();
     void displayImage();
-    void next();
-
+    void handleError();
 private:
     QMediaPlayer player;
     QMediaPlaylist *list;

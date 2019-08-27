@@ -106,6 +106,8 @@ QPlayer::QPlayer()
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
     connect(&player, &QMediaPlayer::currentMediaChanged, this, &QPlayer::currentMediaChanged);
+    connect(&player, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
+            this, &QPlayer::handleError);
     connect(&timer1, &QTimer::timeout, this, &QPlayer::displayImage);
     connect(&timer2, &QTimer::timeout, this, &QPlayer::next);
 
@@ -303,3 +305,17 @@ void QPlayer::currentMediaChanged(const QMediaContent &media)
         }
 }
 
+void QPlayer::handleError()
+{
+    const QString errorString = player.errorString();
+    QString message = "Error: ";
+    if (errorString.isEmpty())
+        message += " #" + QString::number(int(player.error()));
+    else
+        message += errorString;
+    qDebug() << message;
+
+    if(QMessageBox::critical(this, "Qplayer Error", message)){
+        exit();
+    }
+}
