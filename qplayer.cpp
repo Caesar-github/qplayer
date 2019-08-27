@@ -271,6 +271,8 @@ void QPlayer::durationChanged(qint64 duration)
 
 void QPlayer::setPosition(int position)
 {
+    if(! player.isSeekable())
+        return;
     if(! player.isMuted())
         player.setMuted(true);
     player.setPosition(position);
