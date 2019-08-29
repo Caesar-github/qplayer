@@ -152,7 +152,8 @@ void QPlayer::keyReleaseEvent(QKeyEvent *e)
         case Qt::Key_Up:
             v = player.volume();
             if(v < 100){
-                v++;
+                v = v + 10;
+                v = v<100?v:100;
                 player.setVolume(v);
                 qDebug() << "Key_VolumeUp: " << v;
             }
@@ -161,7 +162,8 @@ void QPlayer::keyReleaseEvent(QKeyEvent *e)
         case Qt::Key_Down:
             v = player.volume();
             if(v > 0){
-                v--;
+                v = v - 10;
+                v = v>0?v:0;
                 player.setVolume(v);
                 qDebug() << "Key_VolumeDown: " << v;
             }
