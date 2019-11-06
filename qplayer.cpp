@@ -100,7 +100,7 @@ QPlayer::QPlayer()
     player.setVideoOutput(videoViewer);
 
     setCentralWidget(widget);
-//    setWindowState(Qt::WindowMaximized);
+    setWindowState(Qt::WindowMaximized);
     setWindowFlags(Qt::FramelessWindowHint);
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
