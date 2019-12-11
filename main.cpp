@@ -79,11 +79,11 @@ int main(int argc, char **argv)
         QUrl url("rtsp://b1.dnsdojo.com:1935/live/sys3.stream");
         QFile file("/oem/SampleVideo_1280x720_5mb.mp4");
 
-        if(url.isValid()){
+/*        if(url.isValid()){
             qDebug() << "opening" << url;
             player.load(url);
             player.play();
-        }else if(file.exists()){
+        }else */if(file.exists()){
             qDebug() << "opening" << file.fileName();
             player.load(QUrl::fromLocalFile(file.fileName()));
             player.play();
