@@ -99,6 +99,11 @@ QPlayer::QPlayer()
     setCentralWidget(widget);
     setWindowState(Qt::WindowMaximized);
     setWindowFlags(Qt::FramelessWindowHint);
+
+    QPalette palette = QWidget::palette();
+    palette.setColor(QPalette::Window, Qt::black);
+    setPalette(palette);
+
     connect(&player, &QMediaPlayer::stateChanged, this, &QPlayer::mediaStateChanged);
     connect(&player, &QMediaPlayer::positionChanged, this, &QPlayer::positionChanged);
     connect(&player, &QMediaPlayer::durationChanged, this, &QPlayer::durationChanged);
