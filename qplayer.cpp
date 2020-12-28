@@ -52,6 +52,11 @@
 #include <QtWidgets>
 #include <QVideoSurfaceFormat>
 
+#define MIME_IS_GIF(s)   !(s).compare("image/gif")
+#define MIME_IS_IMAGE(s) ((s).startsWith("image/") && !MIME_IS_GIF(s))
+#define MIME_IS_VIDEO(s) ((s).startsWith("video/") || MIME_IS_GIF(s))
+#define MIME_IS_AUDIO(s) (s).startsWith("audio/")
+
 QPlayer::QPlayer()
     : player(nullptr, QMediaPlayer::VideoSurface)
     , list(nullptr)
@@ -181,11 +186,11 @@ void QPlayer::displayImage()
 {
     QMimeDatabase db;
     QUrl url = list->currentMedia().canonicalUrl();
-    QString s = db.mimeTypeForUrl(url).name().mid(0, 6);
+    QString s = db.mimeTypeForUrl(url).name();
 
     player.pause();
     timer1.stop();
-    if(! s.compare("image/")){
+    if(MIME_IS_IMAGE(s)){
         QImage img;
         img.load(url.toLocalFile());
         int w = geometry().width();
@@ -293,18 +298,18 @@ void QPlayer::currentMediaChanged(const QMediaContent &media)
         QUrl url = media.canonicalUrl();
         QMimeDatabase db;
         QMimeType mt = db.mimeTypeForUrl(url);
-        QString s = mt.name().mid(0, 6);
-        if(! s.compare("image/")){
+        QString s = mt.name();
+        if(MIME_IS_IMAGE(s)){
             imageViewer->show();
             player.setVideoOutput(new QVideoWidget);
             timer1.start(1);
-        }else if (! s.compare("audio/")){
+        }else if (MIME_IS_AUDIO(s)){
             int w = geometry().width();
             int h = geometry().height() - controlLayout->sizeHint().height();
             imageViewer->setPixmap(QPixmap(":/album.jpeg").scaled(w*2/3, h*2/3, Qt::KeepAspectRatio));
             imageViewer->show();
             player.setVideoOutput(new QVideoWidget);
-        }else if (! s.compare("video/")){
+        }else if(MIME_IS_VIDEO(s)){
             imageViewer->hide();
             player.setVideoOutput(videoViewer);
             videoViewer->show();
